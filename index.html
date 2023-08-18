@@ -4,15 +4,12 @@
     <meta charset="utf-8" />
     <title>NoneBlock</title>
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="./src/index.css" />
-    <script src="https://unpkg.com/blockly"></script>
-    <script src="https://unpkg.com/blockly/msg/zh-hans"></script>
-    <script src="https://unpkg.com/blockly/python_compressed"></script>
-    <script type="module" src="./src/index.js" defer></script>
+    <link rel="stylesheet" href="./src/index.scss" />
   </head>
   <body>
     <div id="blocklyDiv"></div>
-    <div id="codePreview"></div>
+    <pre><code id="codePreview"></code></pre>
     <div id="waterMark"></div>
+    <script type="module" src="./src/index.js"></script>
   </body>
 </html>

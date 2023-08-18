@@ -1,8 +1,11 @@
-class NoneBlcokRenderer extends Blockly.blockRendering.Renderer {
-  constructor() {
-    super();
-  }
+import * as Blockly from "blockly";
+import type { Connection } from "blockly";
+import type { PuzzleTab, Notch } from "blockly/core/renderers/common/constants";
 
+class NoneBlcokRenderer extends Blockly.blockRendering.Renderer {
+  constructor(name?: string) {
+    super(name ?? "noneblock_renderer");
+  }
   makeConstants_() {
     return new NoneBlcokConstantProvider();
   }
@@ -10,6 +13,8 @@ class NoneBlcokRenderer extends Blockly.blockRendering.Renderer {
 
 class NoneBlcokConstantProvider extends Blockly.blockRendering
   .ConstantProvider {
+  [key: `${string}_TAB`]: PuzzleTab;
+
   constructor() {
     super();
     this.NOTCH_WIDTH = 20;
@@ -18,21 +23,23 @@ class NoneBlcokConstantProvider extends Blockly.blockRendering
     this.TAB_HEIGHT = 10;
     this.TAB_WIDTH = 8;
   }
-
-  init() {
+  init(): void {
     super.init();
 
     const width = this.TAB_WIDTH;
     const height = this.TAB_HEIGHT;
 
-    this.makeInputConn = (makeMainPath) => ({
+    const makeInputConn = (
+      makeMainPath: (dir: number) => string
+    ): PuzzleTab => ({
+      type: Blockly.INPUT_VALUE | Blockly.OUTPUT_VALUE,
       width: width,
       height: height,
-      pathUp: makeMainPath(-1, width, height),
-      pathDown: makeMainPath(1, width, height),
+      pathUp: makeMainPath(-1),
+      pathDown: makeMainPath(1),
     });
 
-    this.RECT_TAB = this.makeInputConn((dir) =>
+    this.RECT_TAB = makeInputConn((dir: number): string =>
       Blockly.utils.svgPaths.line([
         Blockly.utils.svgPaths.point(-width, 0),
         Blockly.utils.svgPaths.point(0, dir * height),
@@ -40,38 +47,25 @@ class NoneBlcokConstantProvider extends Blockly.blockRendering
       ])
     );
 
-    this.TRI_TAB = this.makeInputConn((dir) =>
+    this.TRI_TAB = makeInputConn((dir: number): string =>
       Blockly.utils.svgPaths.line([
         Blockly.utils.svgPaths.point(-width, (dir * height) / 2),
         Blockly.utils.svgPaths.point(width, (dir * height) / 2),
       ])
     );
-
-    this.DEFALUT_TAB = this.makeInputConn((dir) =>
-      Blockly.utils.svgPaths.line([Blockly.utils.svgPaths.point(0, height)])
-    );
-
-    this.inputConns = new Map([
-      ["String", this.RECT_TAB],
-      ["Number", this.PUZZLE_TAB],
-      ["Boolean", this.TRI_TAB],
-    ]);
   }
 
-  shapeFor(connection) {
+  shapeFor(connection: Connection): PuzzleTab | Notch {
     switch (connection.type) {
       case Blockly.INPUT_VALUE:
       case Blockly.OUTPUT_VALUE:
-        let targetConnection = connection.targetConnection;
-        if (targetConnection && targetConnection.getCheck())
-          connection.check_ = targetConnection.getCheck();
-        const checks = connection.getCheck();
-        if (checks) {
-          if (checks.includes("String")) return this.RECT_TAB;
-          if (checks.includes("Number")) return this.PUZZLE_TAB;
-          if (checks.includes("Boolean")) return this.TRI_TAB;
-        }
-        return this.DEFALUT_TAB;
+        // let checks = connection.getCheck();
+        // if (checks) {
+        //   if (checks.includes("Boolean")) return this.TRI_TAB;
+        //   if (checks.includes("Number")) return this.PUZZLE_TAB;
+        //   if (checks.includes("String")) return this.RECT_TAB;
+        // }
+        return this.PUZZLE_TAB;
       case Blockly.PREVIOUS_STATEMENT:
       case Blockly.NEXT_STATEMENT:
         return this.NOTCH;
