@@ -1,28 +1,35 @@
+name: deploy to gh-pages
+
 on:
   push:
     branches:
       - master
 
 jobs:
-  deploy-to-gh-pages:
-    name: Deploy to `gh-pages`
+  deploy:
+    name: deploy to gh-pages
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v2
+        with:
+          ref: master
 
-      - name: Use Node.js
+      - name: setup node.js
         uses: actions/setup-node@v1
+        with:
+          node-version: 14
 
-      - name: Build
+      - name: build
         run: |
           npm install
           npm run build
 
-      - name: Deploy
+      - name: deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          full_commit_message: ":rocket: deploy to `gh-pages`"
+          full_commit_message: ":rocket: deploy to gh-pages"
